@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autoevaluación Diagnóstica para PyMEs - Tu Nombre, Consultor Empresarial</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    :root {
+      --azul: #0b4f8a;
+      --azul-claro: #e8f2fb;
+      --verde: #1f8f6a;
+      --verde-claro: #e8f7f1;
+      --texto: #1e2a35;
+      --gris: #6b7a88;
+      --borde: #d7e2eb;
+      --fondo: #f5f8fb;
+      --blanco: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--texto);
+      background: linear-gradient(160deg, var(--azul-claro) 0%, var(--verde-claro) 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1100px, 94%);
+      margin: 0 auto;
+      padding: 1rem 0 2rem;
+    }
+
+    .hero {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 18px;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 10px 30px rgba(11, 79, 138, 0.08);
+      margin-bottom: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: var(--blanco);
+      font-weight: 700;
+      background: linear-gradient(140deg, var(--azul), var(--verde));
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.1rem, 2vw, 1.7rem);
+      color: var(--azul);
+    }
+
+    .subtitle { margin: .4rem 0 0; color: var(--gris); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(11, 79, 138, 0.06);
+    }
+
+    .accordion-item + .accordion-item { border-top: 1px solid var(--borde); }
+
+    .accordion-btn {
+      width: 100%;
+      background: transparent;
+      border: 0;
+      text-align: left;
+      padding: 1rem 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      color: var(--azul);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .accordion-btn span { color: var(--verde); font-size: 1.2rem; }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+      padding: 0 1.1rem;
+    }
+
+    .accordion-item.active .accordion-content {
+      max-height: 500px;
+      padding-bottom: .9rem;
+    }
+
+    .question {
+      margin: .75rem 0;
+      padding: .7rem;
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+      background: #fafcfe;
+    }
+
+    .question label {
+      display: block;
+      font-size: .93rem;
+      margin-bottom: .35rem;
+      color: #233344;
+    }
+
+    .question select {
+      width: 100%;
+      padding: .45rem;
+      border-radius: 8px;
+      border: 1px solid #c4d5e2;
+      font: inherit;
+      background: #fff;
+    }
+
+    .actions {
+      display: flex;
+      gap: .7rem;
+      flex-wrap: wrap;
+      padding: 1rem 1.1rem 1.2rem;
+      border-top: 1px solid var(--borde);
+      margin-top: .5rem;
+    }
+
+    button, .btn-link {
+      border: 0;
+      border-radius: 10px;
+      padding: .7rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+    }
+
+    #calculateBtn { background: var(--azul); color: #fff; }
+    #pdfBtn { background: var(--verde); color: #fff; }
+    #whatsappBtn { background: #25D366; color: #fff; }
+
+    .results {
+      padding: 1rem;
+    }
+
+    .results h2 {
+      margin-top: 0;
+      color: var(--azul);
+      font-size: 1.2rem;
+    }
+
+    .summary {
+      padding: .8rem;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #eff6ff, #effcf6);
+      border: 1px solid var(--borde);
+      margin-bottom: .9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: .92rem;
+    }
+
+    th, td {
+      border: 1px solid var(--borde);
+      padding: .5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { background: #eef4f9; color: var(--azul); }
+
+    .tag {
+      font-size: .82rem;
+      border-radius: 999px;
+      padding: .2rem .55rem;
+      color: #fff;
+      display: inline-block;
+    }
+
+    .alto { background: #1f8f6a; }
+    .medio { background: #d08d11; }
+    .bajo { background: #c1372f; }
+
+    footer {
+      text-align: center;
+      color: #334a5f;
+      margin-top: 1rem;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container" id="reportContent">
+    <section class="hero">
+      <div class="brand">
+        <div class="logo">LOGO</div>
+        <div>
+          <h1>Autoevaluación Diagnóstica para PyMEs - Tu Nombre, Consultor Empresarial</h1>
+          <p class="subtitle">Evalúa rápidamente tus áreas clave y recibe recomendaciones accionables.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <article class="card" id="formCard">
+        <div id="accordion"></div>
+        <div class="actions">
+          <button id="calculateBtn">Calcular Diagnóstico</button>
+          <button id="pdfBtn">Descargar PDF</button>
+          <a id="whatsappBtn" class="btn-link" href="https://wa.me/5215512345678?text=Hola%2C%20quiero%20una%20asesor%C3%ADa%20empresarial" target="_blank" rel="noopener">Contactar consultor</a>
+        </div>
+      </article>
+
+      <aside class="card results" id="resultsPanel">
+        <h2>Resultados del diagnóstico</h2>
+        <div class="summary" id="globalSummary">Completa la autoevaluación y presiona "Calcular Diagnóstico".</div>
+        <div style="overflow:auto;">
+          <table id="resultTable">
+            <thead>
+              <tr>
+                <th>Área</th>
+                <th>%</th>
+                <th>Nivel</th>
+                <th>Recomendación</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <canvas id="barChart" height="220"></canvas>
+      </aside>
+    </section>
+
+    <footer>
+      Herramienta gratuita para emprendedores. Desarrollado en 2026
+    </footer>
+  </main>
+
+  <script>
+    const diagnosisData = {
+      "Finanzas": {
+        recommendation: "Implementa software de contabilidad y un tablero de flujo de caja semanal.",
+        questions: [
+          "¿Llevas estados financieros actualizados mensualmente?",
+          "¿Controlas tu flujo de caja proyectado al menos 8 semanas?",
+          "¿Tienes presupuesto anual con seguimiento mensual?",
+          "¿Monitoreas margen bruto y neto por línea de negocio?",
+          "¿Separas finanzas personales de las de la empresa?"
+        ]
+      },
+      "Marketing": {
+        recommendation: "Define propuesta de valor clara y mide campañas por costo de adquisición.",
+        questions: [
+          "¿Tienes un perfil claro de cliente ideal?",
+          "¿Cuentas con plan de marketing trimestral?",
+          "¿Mides resultados de campañas (leads, CAC, conversión)?",
+          "¿Tu marca tiene presencia digital consistente?",
+          "¿Tu contenido comunica beneficios diferenciadores?"
+        ]
+      },
+      "Ventas": {
+        recommendation: "Estandariza tu embudo comercial y da seguimiento semanal a oportunidades.",
+        questions: [
+          "¿Tienes proceso comercial definido por etapas?",
+          "¿Usas CRM o sistema para seguimiento de prospectos?",
+          "¿Mides tasa de cierre y ticket promedio?",
+          "¿Tu equipo maneja guiones y objeciones comunes?",
+          "¿Realizas pronóstico de ventas mensual?"
+        ]
+      },
+      "Compras/Inventarios": {
+        recommendation: "Aplica políticas de mínimos y máximos, y renegocia condiciones con proveedores.",
+        questions: [
+          "¿Clasificas inventarios por rotación (ABC)?",
+          "¿Tienes niveles de stock mínimo y máximo definidos?",
+          "¿Mides quiebres y sobreinventario mensualmente?",
+          "¿Evalúas desempeño de proveedores por costo/tiempo/calidad?",
+          "¿Tu reposición está basada en demanda histórica?"
+        ]
+      },
+      "Procesos": {
+        recommendation: "Documenta procesos críticos y establece indicadores operativos semanales.",
+        questions: [
+          "¿Tus procesos clave están documentados?",
+          "¿Existen responsables definidos por proceso?",
+          "¿Mides tiempos de ciclo y productividad?",
+          "¿Tienes protocolos para incidencias/retrabajos?",
+          "¿Promueves mejora continua con revisiones periódicas?"
+        ]
+      },
+      "RH": {
+        recommendation: "Fortalece perfiles de puesto, evaluación de desempeño y plan de capacitación.",
+        questions: [
+          "¿Cuentas con perfiles de puesto actualizados?",
+          "¿Tienes objetivos y KPIs por colaborador?",
+          "¿Aplicas evaluación de desempeño al menos semestral?",
+          "¿Existe plan de capacitación anual?",
+          "¿Mides rotación y clima laboral?"
+        ]
+      }
+    };
+
+    const accordion = document.getElementById('accordion');
+    const resultTbody = document.querySelector('#resultTable tbody');
+    const globalSummary = document.getElementById('globalSummary');
+    let chart;
+
+    function createAccordion() {
+      Object.entries(diagnosisData).forEach(([area, info], idx) => {
+        const item = document.createElement('div');
+        item.className = 'accordion-item' + (idx === 0 ? ' active' : '');
+
+        const btn = document.createElement('button');
+        btn.className = 'accordion-btn';
+        btn.type = 'button';
+        btn.innerHTML = `<strong>${area}</strong><span>${idx === 0 ? '−' : '+'}</span>`;
+
+        btn.addEventListener('click', () => {
+          const active = item.classList.contains('active');
+          document.querySelectorAll('.accordion-item').forEach(el => {
+            el.classList.remove('active');
+            el.querySelector('.accordion-btn span').textContent = '+';
+          });
+          if (!active) {
+            item.classList.add('active');
+            btn.querySelector('span').textContent = '−';
+          }
+        });
+
+        const content = document.createElement('div');
+        content.className = 'accordion-content';
+
+        info.questions.forEach((question, qIndex) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'question';
+          wrapper.innerHTML = `
+            <label for="${area}-${qIndex}">${qIndex + 1}. ${question}</label>
+            <select id="${area}-${qIndex}" data-area="${area}">
+              <option value="">Selecciona una calificación (1-5)</option>
+              <option value="1">1 - Nunca / No existe</option>
+              <option value="2">2 - Ocasionalmente</option>
+              <option value="3">3 - En desarrollo</option>
+              <option value="4">4 - Bien implementado</option>
+              <option value="5">5 - Excelente / Estandarizado</option>
+            </select>
+          `;
+          content.appendChild(wrapper);
+        });
+
+        item.append(btn, content);
+        accordion.appendChild(item);
+      });
+    }
+
+    function getLevel(percent) {
+      if (percent > 80) return { label: 'Alto', className: 'alto', msg: 'Excelente base' };
+      if (percent >= 50) return { label: 'Medio', className: 'medio', msg: 'Oportunidades de mejora' };
+      return { label: 'Bajo', className: 'bajo', msg: 'Acción inmediata' };
+    }
+
+    function calculateDiagnosis() {
+      const resultRows = [];
+
+      Object.entries(diagnosisData).forEach(([area, info]) => {
+        const selects = [...document.querySelectorAll(`select[data-area="${area}"]`)];
+        const answered = selects.map(s => Number(s.value)).filter(v => !Number.isNaN(v) && v > 0);
+
+        const score = answered.reduce((sum, n) => sum + n, 0);
+        const maxScore = selects.length * 5;
+        const percent = answered.length ? Math.round((score / maxScore) * 100) : 0;
+        const level = getLevel(percent);
+
+        resultRows.push({ area, percent, level, recommendation: info.recommendation });
+      });
+
+      const globalAverage = Math.round(resultRows.reduce((sum, r) => sum + r.percent, 0) / resultRows.length);
+      const globalLevel = getLevel(globalAverage);
+
+      renderResults(resultRows, globalAverage, globalLevel);
+      saveToLocalStorage(resultRows, globalAverage);
+    }
+
+    function renderResults(rows, globalAverage, globalLevel) {
+      resultTbody.innerHTML = '';
+
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.area}</td>
+          <td>${row.percent}%</td>
+          <td><span class="tag ${row.level.className}">${row.level.label}</span><br>${row.level.msg}</td>
+          <td>${row.recommendation}</td>
+        `;
+        resultTbody.appendChild(tr);
+      });
+
+      globalSummary.innerHTML = `<strong>Promedio global: ${globalAverage}%</strong><br>Nivel: <span class="tag ${globalLevel.className}">${globalLevel.label}</span> — ${globalLevel.msg}.`;
+      renderChart(rows);
+    }
+
+    function renderChart(rows) {
+      const ctx = document.getElementById('barChart');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: rows.map(r => r.area),
+          datasets: [{
+            label: 'Resultado por área (%)',
+            data: rows.map(r => r.percent),
+            backgroundColor: rows.map(r => r.percent > 80 ? '#1f8f6a' : r.percent >= 50 ? '#d08d11' : '#c1372f')
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+
+    function saveToLocalStorage(rows, globalAverage) {
+      const payload = {
+        rows,
+        globalAverage,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem('diagnosticoPyme', JSON.stringify(payload));
+    }
+
+    function loadFromLocalStorage() {
+      const raw = localStorage.getItem('diagnosticoPyme');
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed.rows || !Array.isArray(parsed.rows)) return;
+        const globalLevel = getLevel(parsed.globalAverage || 0);
+        renderResults(parsed.rows, parsed.globalAverage || 0, globalLevel);
+      } catch (err) {
+        console.warn('No se pudieron recuperar resultados previos.');
+      }
+    }
+
+    document.getElementById('calculateBtn').addEventListener('click', calculateDiagnosis);
+
+    document.getElementById('pdfBtn').addEventListener('click', () => {
+      const element = document.getElementById('reportContent');
+      const options = {
+        margin: 0.4,
+        filename: 'diagnostico-empresarial-pyme.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(options).from(element).save();
+    });
+
+    createAccordion();
+    loadFromLocalStorage();
+  </script>
+</body>
+</html>
